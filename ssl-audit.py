@@ -5,17 +5,32 @@
 from sslyze.server_connectivity import ServerConnectivityInfo, ServerConnectivityError
 from sslyze.plugins_process_pool import PluginsProcessPool
 from sslyze.plugins_finder import PluginsFinder
-import sys, time, hashlib, Queue, threading
 from datetime import datetime
+import sys, time, Queue, threading, os, shutil
 
-q1	= Queue.Queue()
-resu	= []
 
-fname	= 'sslaudit.csv'
+now     	= datetime.now()
+timest		= now.strftime("%Y-%m-%d_%H-%M")
+unixtime	= str(int(time.time())).split('.')[0]
+
+q1     		= Queue.Queue()
+resu		= []
+
+fname		= 'audit-result.csv'
+rname		= 'audit-result_'+str(timest)+'.csv' 
+
+fdir		= os.getcwd()
+rdir		= os.getcwd()+'/result'
+
+fpath		= fdir+'/'+fname
+rpath		= rdir+'/'+rname
 
 ###
 
 def start():
+	if not os.path.exists(rdir):
+   		os.makedirs(rdir)
+
 	if len(sys.argv) > 1:
 		inputf  = sys.argv[1]
 	else:
@@ -63,8 +78,7 @@ def get_scan(host):
 					extendedval	= str(x.is_leaf_certificate_ev)
 
 					for z in x.path_validation_result_list:
-						# check against the MS certificate store using "Microsoft", but you can also use "Mozilla NSS", "Apple" or "Java 6"
-						if z.trust_store.name == 'Microsoft': 
+						if z.trust_store.name == 'Microsoft': 				# check against the MS certificate store using "Microsoft", but you can also use "Mozilla NSS", "Apple" or "Java 6"
 							trusted	= str(z.is_certificate_trusted)
 
 				except:
@@ -116,7 +130,7 @@ def get_scan(host):
 		ouline	= ouline[:-2]
 
 		a	= ''
-		b	= [host, commonn, cert_sha1, host_match, extendedval, trusted, cert_start, cert_unix_start, cert_end, cert_unix_end, cert_alt, ouline, isline, puline, crts]
+		b	= [host, commonn, cert_sha1, host_match, extendedval, trusted, cert_start, cert_unix_start, cert_end, cert_unix_end, cert_alt, ouline, isline, puline, crts, timest, unixtime]
 		for c in b:
 			a	+= '"'+c+'",'
 
@@ -124,13 +138,16 @@ def get_scan(host):
 		print a[:-1]
 
 def writeres():
-	f	= open(fname, 'w')
-	f.write('"host","cert-fqdn","cert-sha1","valid-truststore","cert-hostname-match","cert-ev","cert-start","cert-start-unix","cert-end","cert-unix-end","cert-altnames","cert-owner","cert-issuer","cert-sign-type","server-ssl-support"\n')
-	for x in resu:
-		f.write(x+'\n')
-	f.close
+	for z in [fpath, rpath]:
+		n 	= int(0)
+		f	= open(z, 'w')
+		f.write('"host","cert-fqdn","cert-sha1","mozilla-truststore","cert-hostname-match","cert-ev","cert-start","cert-start-unix","cert-end","cert-unix-end","cert-altnames","cert-owner","cert-issuer","cert-sign-type","server-ssl-support","scan-timestamp","scan-timestamp-unix"\n')
+		for x in resu:
+			f.write(x+'\n')
+			n 	+= int(1)
+		f.close
 
-	print 'completed cert audit, results at '+fname
+	print '\ncompleted cert audit, '+str(n)+' hosts scanned, results at '+rpath
 
 start()
 writeres()

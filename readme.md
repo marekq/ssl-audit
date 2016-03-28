@@ -27,7 +27,9 @@ The tool needs a list of DNS names or IP addresses to scan;
 
 	$ python ssl-audit.py example.csv
 
-Results of the scan are shown on screen and stored in "sslaudit.csv" in the current directory. If you manage a large amount of servers, you could consider to run the job as a cron with an input file containing your domain and to create alerts whenever certificates will expire or to quickly have an overview of SSL servers when yet another OpenSSL exploit becomes public knowledge...
+Results of the scan are shown on screen and stored in "sslaudit.csv" in the current directory. A timestamped copy of the results file is stored in folder 'ssl-results' in the current directory.
+
+If you manage a large amount of servers, you could consider to run the job as a cron with an input file containing your domain. You could then create alerts whenever certificates will expire or to quickly have an overview of SSL servers when yet another OpenSSL exploit becomes public knowledge...
 
 Contact
 -------
