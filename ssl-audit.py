@@ -68,13 +68,12 @@ def get_scan(host):
 							trusted	= str(z.is_certificate_trusted)
 
 				except:
-					y		= ''
+					y				= ''
 
 				if y != '':
 					cert_start 		= y['validity']['notBefore']
 					cert_end 		= y['validity']['notAfter']
 					commonn			= y['subject']['commonName'].lower()
-					ouline = isline = puline = ''
 
 					cert_unix_start		= str(time.mktime(time.strptime(str(cert_start), "%b %d %H:%M:%S %Y %Z"))).split('.')[0]
 					cert_unix_end		= str(time.mktime(time.strptime(str(cert_end), "%b %d %H:%M:%S %Y %Z"))).split('.')[0]
